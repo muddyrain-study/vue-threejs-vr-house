@@ -5,7 +5,7 @@
 <script setup>
 import * as THREE from "three";
 import { onMounted, ref } from "vue";
-
+import gsap from "gsap";
 // 初始化场景
 const scene = new THREE.Scene();
 // 初始化相机
@@ -34,15 +34,68 @@ onMounted(() => {
 
   // 创建客厅
   const livingroom = new Room("客厅", 0, "./img/livingroom/");
-  const kitchenPosition = new THREE.Vector3(0, 0, -10);
-  const kitchen = new Room("厨房", 3, "./img/kitchen/", kitchenPosition);
+  const kitchenPosition = new THREE.Vector3(-5, 0, -10);
+  const kitchenEuler = new THREE.Euler(0, -Math.PI / 2, 0);
+  const kitchen = new Room(
+    "厨房",
+    3,
+    "./img/kitchen/",
+    kitchenPosition,
+    kitchenEuler
+  );
 
   // 创建厨房精灵文字
-  let kitchenTextPosition = new THREE.Vector3(0, 0, -5);
+  let kitchenTextPosition = new THREE.Vector3(-1, 0, -3);
   let kitchenText = new SpriteText("厨房", kitchenTextPosition);
   kitchenText.onclick(() => {
     // 让相机移动到厨房
-    console.log("厨房");
+    gsap.to(camera.position, {
+      duration: 1,
+      x: kitchenPosition.x,
+      y: kitchenPosition.y,
+      z: kitchenPosition.z,
+    });
+  });
+
+  // 创建厨房回客厅精灵文字
+  let kitchenBackTextPosition = new THREE.Vector3(-4, 0, -6);
+  let kitchenBackText = new SpriteText("客厅", kitchenBackTextPosition);
+  kitchenBackText.onclick(() => {
+    // 让相机移动到厨房
+    gsap.to(camera.position, {
+      duration: 1,
+      x: 0,
+      y: 0,
+      z: 0,
+    });
+  });
+
+  // 创建阳台
+  let balconyPosition = new THREE.Vector3(0, 0, 15);
+  let blalcony = new Room("阳台", 8, "./img/balcony/", balconyPosition);
+  // 创建阳台精灵文字
+  let blalconyTextPosition = new THREE.Vector3(0, 0, 3);
+  let blalconyText = new SpriteText("阳台", blalconyTextPosition);
+  blalconyText.onclick(() => {
+    // 让相机移动到厨房
+    gsap.to(camera.position, {
+      duration: 1,
+      x: balconyPosition.x,
+      y: balconyPosition.y,
+      z: balconyPosition.z,
+    });
+  });
+
+  let blalconyBackTextPosition = new THREE.Vector3(-1, 0, 12);
+  let blalconyBackText = new SpriteText("客厅", blalconyBackTextPosition);
+  blalconyBackText.onclick(() => {
+    // 让相机移动到厨房
+    gsap.to(camera.position, {
+      duration: 1,
+      x: 0,
+      y: 0,
+      z: 0,
+    });
   });
 });
 const render = () => {
@@ -102,6 +155,7 @@ class SpriteText {
       transparent: true,
     });
     const sprite = new THREE.Sprite(material);
+    sprite.scale.set(0.5, 0.5, 0.5);
     this.sprite = sprite;
     sprite.position.copy(position);
     scene.add(sprite);
@@ -151,6 +205,10 @@ class Room {
       const texture = new THREE.TextureLoader().load(
         textureUrl + item + ".jpg"
       );
+      if (item.includes("d") || item.includes("u")) {
+        texture.rotation = Math.PI;
+        texture.center = new THREE.Vector2(0.5, 0.5);
+      }
       boxMaterials.push(new THREE.MeshBasicMaterial({ map: texture }));
     });
     // 创建物体
