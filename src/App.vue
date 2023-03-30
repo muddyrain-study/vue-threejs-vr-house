@@ -4,6 +4,12 @@
     <div class="tag" ref="tagDiv"></div>
     <img src="./assets/map.gif" alt="" />
   </div>
+  <div class="loading" v-if="progress != 100"></div>
+  <div class="progress" v-if="progress != 100">
+    <img src="./assets/loading.gif" alt="" />
+    <span>新房奔跑中：{{ progress }}%</span>
+  </div>
+  <div class="title">VR全景看房</div>
 </template>
 
 <script setup>
@@ -22,6 +28,7 @@ const camera = new THREE.PerspectiveCamera(
 
 camera.position.set(0, 0, 0);
 
+const progress = ref(0);
 const tagDiv = ref(null);
 const container = ref(null);
 
@@ -108,6 +115,9 @@ onMounted(() => {
     });
     moveTag("客厅");
   });
+  THREE.DefaultLoadingManager.onProgress = function (item, loaded, total) {
+    progress.value = new Number((loaded / total) * 100).toFixed(2);
+  };
 });
 const moveTag = (name) => {
   let positions = {
