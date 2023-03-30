@@ -1,5 +1,9 @@
 <template>
   <div class="container" ref="container"></div>
+  <div class="map">
+    <div class="tag" ref="tagDiv"></div>
+    <img src="./assets/map.gif" alt="" />
+  </div>
 </template>
 
 <script setup>
@@ -18,7 +22,9 @@ const camera = new THREE.PerspectiveCamera(
 
 camera.position.set(0, 0, 0);
 
+const tagDiv = ref(null);
 const container = ref(null);
+
 // 初始化渲染器
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -31,6 +37,7 @@ onMounted(() => {
   container.value.appendChild(renderer.domElement);
   render();
   watchMouseEvent();
+  tagDiv.value.style.transform = `translate(100px,110px)`;
 
   // 创建客厅
   const livingroom = new Room("客厅", 0, "./img/livingroom/");
@@ -55,6 +62,7 @@ onMounted(() => {
       y: kitchenPosition.y,
       z: kitchenPosition.z,
     });
+    moveTag("厨房");
   });
 
   // 创建厨房回客厅精灵文字
@@ -68,6 +76,7 @@ onMounted(() => {
       y: 0,
       z: 0,
     });
+    moveTag("客厅");
   });
 
   // 创建阳台
@@ -84,6 +93,7 @@ onMounted(() => {
       y: balconyPosition.y,
       z: balconyPosition.z,
     });
+    moveTag("阳台");
   });
 
   let blalconyBackTextPosition = new THREE.Vector3(-1, 0, 12);
@@ -96,8 +106,26 @@ onMounted(() => {
       y: 0,
       z: 0,
     });
+    moveTag("客厅");
   });
 });
+const moveTag = (name) => {
+  let positions = {
+    客厅: [100, 110],
+    厨房: [180, 190],
+    阳台: [50, 50],
+  };
+  console.log(positions[name]);
+  if (positions[name]) {
+    const target = positions[name];
+    gsap.to(tagDiv.value, {
+      duration: 0.5,
+      x: target[0],
+      y: target[1],
+      ease: "power3.inOut",
+    });
+  }
+};
 const render = () => {
   renderer.render(scene, camera);
   requestAnimationFrame(render);
@@ -228,5 +256,74 @@ class Room {
 .container {
   width: 100vw;
   height: 100vh;
+}
+
+.map {
+  width: 300px;
+  height: 260px;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.map > img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.map > .tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  background-image: url(./assets/location.png);
+  background-size: cover;
+  z-index: 1;
+}
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url(./assets/loading.png);
+  background-size: cover;
+  filter: blur(50px);
+  z-index: 100;
+}
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 101;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  color: #fff;
+}
+.progress > img {
+  padding: 0 15px;
+}
+
+.title {
+  width: 180px;
+  height: 40px;
+  position: fixed;
+  right: 100px;
+  top: 50px;
+  background-color: rgba(0, 0, 0, 0.5);
+  line-height: 40px;
+  text-align: center;
+  color: #fff;
+  border-radius: 5px;
+  z-index: 110;
 }
 </style>
